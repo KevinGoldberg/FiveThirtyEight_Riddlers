@@ -1,0 +1,101 @@
+
+"""
+
+https://fivethirtyeight.com/features/can-you-find-your-pills/ 
+
+
+"""
+
+
+def nextDay(d, f, h, p):
+    l = [] 
+    
+    if h > 2:
+        #3 half pills
+        l.append([d+1, f, h-3, p * 1.0 * (h * (h-1) * (h-2)) / ((f + h) * (f + h - 1) * (f + h - 2))])
+        
+    if h > 1 and f > 0:
+        #2 half pills and then a full pill
+        l.append([d+1, f-1, h-1, p * 1.0 * (h * (h-1) * (f)) / ((f + h) * (f + h - 1) * (f + h - 2))])
+    
+    if f > 1:
+        #2 full pills
+        l.append([d+1, f-2, h+1, p * 1.0 * (f * (f-1)) / ((f + h) * (f + h - 1))])
+        
+    if f > 0 and h > 0:
+        #1 full pill and 1 half pill
+        l.append([d+1, f-1, h-1, p * 1.0 * (2 * f * h) / ((f + h) * (f + h - 1))])
+    
+    return l
+
+
+def compare(a, b):
+    
+    same, i = True, 0
+    
+    while same == True and i < 3:
+        same = (a[i] == b[i])
+        i += 1
+
+    return same 
+
+
+def consolidate(l):
+    
+    m = [] 
+    
+    if len(l) > 0:
+    
+        for a in l:
+            included = False
+            for b in m:
+                if compare(a, b):
+                    b[3] += a[3]
+                    included = True
+            
+            if not included: 
+                m.append(a)
+            
+    return m 
+
+
+def helper(m, l): 
+    
+    n = nextDay(m[0], m[1], m[2], m[3])
+    #print('Here', n)
+    
+    if len(n) > 0:
+        
+        for x in n:
+            l.append(x)
+        
+        for x in n:
+            helper(x, l)
+
+
+def main(): 
+    
+    #list of possibilities
+    l = [] 
+    
+    #day 0: 15 full pills, 0 half pills, 100% probability
+    m = [0, 15, 0, 1.0]
+    l.append(m)
+        
+    helper(m, l)
+    
+    l = consolidate(l)
+    
+    l.sort() 
+    
+    for x in l:
+        print(x) 
+        if x[0] == 9 and x[1] == 1:
+            sol = x[3] 
+    
+    print('\n')
+    
+    print(f"There is a {sol} chance that there was nothing left in the bottle")
+    
+if __name__ == '__main__':
+    main() 
